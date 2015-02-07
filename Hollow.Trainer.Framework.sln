@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22310.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample-x86", "Sample-x86\Sample-x86.csproj", "{45AE6413-EB34-4816-B402-F1EB20996EFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hollow.Trainer.Framework", "Hollow.Trainer.Framework\Hollow.Trainer.Framework.csproj", "{42D596FE-3870-4E06-8EA9-7994A2FDE530}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{45AE6413-EB34-4816-B402-F1EB20996EFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45AE6413-EB34-4816-B402-F1EB20996EFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45AE6413-EB34-4816-B402-F1EB20996EFE}.Debug|x86.ActiveCfg = Debug|x86
+		{45AE6413-EB34-4816-B402-F1EB20996EFE}.Debug|x86.Build.0 = Debug|x86
+		{45AE6413-EB34-4816-B402-F1EB20996EFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45AE6413-EB34-4816-B402-F1EB20996EFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45AE6413-EB34-4816-B402-F1EB20996EFE}.Release|x86.ActiveCfg = Release|x86
+		{45AE6413-EB34-4816-B402-F1EB20996EFE}.Release|x86.Build.0 = Release|x86
+		{42D596FE-3870-4E06-8EA9-7994A2FDE530}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42D596FE-3870-4E06-8EA9-7994A2FDE530}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42D596FE-3870-4E06-8EA9-7994A2FDE530}.Debug|x86.ActiveCfg = Debug|x86
+		{42D596FE-3870-4E06-8EA9-7994A2FDE530}.Debug|x86.Build.0 = Debug|x86
+		{42D596FE-3870-4E06-8EA9-7994A2FDE530}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42D596FE-3870-4E06-8EA9-7994A2FDE530}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42D596FE-3870-4E06-8EA9-7994A2FDE530}.Release|x86.ActiveCfg = Release|x86
+		{42D596FE-3870-4E06-8EA9-7994A2FDE530}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
