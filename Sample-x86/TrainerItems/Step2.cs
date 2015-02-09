@@ -28,14 +28,14 @@ namespace Sample_x86.TrainerItems
             }
         }
 
-        public Keys HotKeys
+        public Keys HotKey
         {
             get
             {
                 if (hotkey == null)
                     return Keys.NumPad2;
                 else
-                    return hotkey.Keys;
+                    return hotkey.Key;
             }
         }
 
@@ -64,7 +64,7 @@ namespace Sample_x86.TrainerItems
             trainer = trainerBase;
             this.hotkey = hotkey;
             // Uncomment this to support handling hotkeys
-            // this.hotkey.OnHotKeyPressed += OnHotKeyPressed;
+            this.hotkey.OnHotKeyPressed += OnHotKeyPressed;
 
             address = new IntPtr(0x00645300);
             pointerOffsets = new int[] { 0x480 };

@@ -29,46 +29,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-
+using System.Diagnostics;
 namespace Hollow.Trainer.Framework.HotKeys
 {
     public class HotKeyFactory : IDisposable
     {
-        private class HotKeyWndProc : NativeWindow
-        {
-            public HotKeyWndProc()
-            {
-                this.CreateHandle(new CreateParams());
-            }
-
-            private const int WM_HOTKEY = 0x0312;
-            private const int WM_CLOSE = 0x0010;
-            private const int WM_DESTROY = 0x0002;
-            private const int WM_QUIT = 0x0012;
-            protected override void WndProc(ref Message m)
-            {
-                if (m.Msg == WM_HOTKEY)
-                {
-                    lock (Factory._lockObj)
-                    {
-                        if (Factory.hotKeyItems.ContainsKey(m.LParam))
-                        {
-                            HotKey hotkey = HotKeyFactory.Factory.hotKeyItems[m.LParam];
-                            hotkey.OnHotKeyPressedHandler(
-                               // (KeyModifier)((int)m.LParam & 0xFFFF),
-                                //(Keys)(((int)m.LParam >> 16) & 0xFFFF)
-                            );
-
-                        }
-                    }
-                }
-                base.WndProc(ref m);
-            }
-        }
-
         public static HotKeyFactory Factory { get; private set; }
+
+
+        [DllImport("user32.dll")]
+        static extern short GetAsyncKeyState(Keys key);
 
         static HotKeyFactory()
         {
@@ -77,34 +50,22 @@ namespace Hollow.Trainer.Framework.HotKeys
 
         private HotKeyFactory()
         {
+            thread = new Thread(new ThreadStart(ThreadProc));
+            thread.Start();
         }
 
-        private Dictionary<IntPtr, HotKey> hotKeyItems = new Dictionary<IntPtr, HotKey>();
+        private Thread thread;
+        private bool shutdown = false;
+        private Dictionary<Keys, HotKey> hotKeyItems = new Dictionary<Keys, HotKey>();
         private object _lockObj = new object();
 
-        private HotKeyWndProc hotKeyWnd= new HotKeyWndProc();
-
-        private IntPtr MakeLParamForHotKey(Keys keys, KeyModifier modifiers)
+        public HotKey RegisterHotKey(Keys key, KeyModifier modfiers = KeyModifier.None)
         {
-            return (IntPtr)(((int)keys << 16) | ((int)modifiers & 0xFFFF));
-        }
-
-        public HotKey RegisterHotKey(KeyModifier modifiers, Keys keys)
-        {
-            HotKey item = new HotKey(modifiers, keys, hotKeyWnd.Handle);
+            HotKey item = new HotKey(key, modfiers);
 
             lock (_lockObj)
             {
-                hotKeyItems.Add(MakeLParamForHotKey(keys, modifiers), item);
-            }
-
-            try
-            {
-                item.Register();
-            }
-            catch
-            {
-                throw;
+                hotKeyItems.Add(key, item);
             }
 
             return item;
@@ -112,16 +73,38 @@ namespace Hollow.Trainer.Framework.HotKeys
 
         internal void RemoveHotKey(HotKey hotKey)
         {
-            if (hotKey.IsRegistered)
-                throw new Exception("TODO: Hotkey has not been unregistered");
-
-            lock(_lockObj)
+            lock (_lockObj)
             {
-                IntPtr key = MakeLParamForHotKey(hotKey.Keys, hotKey.Modifiers);
-                if (hotKeyItems.ContainsKey(key))
+                if (hotKeyItems.ContainsKey(hotKey.Key))
                 {
-                    hotKeyItems.Remove(key);
+                    hotKeyItems.Remove(hotKey.Key);
                 }
+            }
+        }
+
+        private void ThreadProc()
+        {
+            while (!shutdown)
+            {
+                lock(_lockObj)
+                {
+                    foreach (var item in hotKeyItems.Values)
+                    {
+                        if ((GetAsyncKeyState(item.Key) & 0x8000) == 0x8000)
+                        {
+                            item.IsDown = true;
+                            continue;
+                        }
+
+                        if ((GetAsyncKeyState(item.Key) & 0x8000) != 0x8000 & item.IsDown)
+                        {
+                            item.IsDown = false;
+                            item.OnHotKeyPressedHandler();
+                        }
+                    }
+                }
+
+                Thread.Sleep(15);
             }
         }
 
@@ -134,33 +117,27 @@ namespace Hollow.Trainer.Framework.HotKeys
             {
                 if (disposing)
                 {
-                        
+                    shutdown = true;
+                    thread.Join();
+
+                    hotKeyItems.Clear();
                 }
 
-                while (hotKeyItems.Count > 0)
-                {
-                    hotKeyItems.First().Value.Unregister();
-                }
+                
 
-                hotKeyWnd.DestroyHandle();
                 _lockObj = null;
+                hotKeyItems = null;
+                thread = null;
 
                 IsDisposed = true;
             }
         }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources. 
-         ~HotKeyFactory() {
-           // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-           Dispose(false);
-         }
 
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-             GC.SuppressFinalize(this);
         }
         #endregion
     }

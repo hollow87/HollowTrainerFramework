@@ -25,9 +25,8 @@ namespace Sample_x86
         {
             foreach(var item in trainerItems)
             {
-
                 // Uncomment the following two lines to use hotkeys.
-                var hotkey = HotKeyFactory.Factory.RegisterHotKey(item.HotKeyModifers, item.HotKeys);
+                var hotkey = HotKeyFactory.Factory.RegisterHotKey(item.HotKey, item.HotKeyModifers);
                 item.Initialize(this, hotkey);
             }
         }
@@ -40,7 +39,7 @@ namespace Sample_x86
 
             var item = trainerItems[stepNum - 2]; // We are subtracting 2 here since its values 2-9
 
-            item.OnHotKeyPressed(this, new HotKeyEventArgs(item.HotKeyModifers, item.HotKeys));
+            item.OnHotKeyPressed(this, new HotKeyEventArgs(item.HotKey, item.HotKeyModifers));
         }
     }
 }

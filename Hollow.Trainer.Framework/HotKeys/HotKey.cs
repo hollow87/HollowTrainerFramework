@@ -29,6 +29,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
+
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -36,59 +38,21 @@ namespace Hollow.Trainer.Framework.HotKeys
 {
     public class HotKey
     {
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
         public event EventHandler<HotKeyEventArgs> OnHotKeyPressed;
 
         public KeyModifier Modifiers { private set; get; }
-        public Keys Keys { private set; get; }
+        public Keys Key { private set; get; }
+        
+        internal bool IsDown { get; set; }
 
-        private IntPtr hWnd;
-        private int id;
-
-        public bool IsRegistered { get; private set; }
-
-        internal HotKey(KeyModifier modifiers, Keys keys, IntPtr hWnd)
+        internal HotKey(Keys key, KeyModifier modifiers)
         {
-            this.Modifiers = modifiers;
-            this.Keys = keys;
-            this.hWnd = hWnd;
-            id = this.GetHashCode();
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)Modifiers ^ (int)Keys ^ hWnd.ToInt32();
-        }
-
-        internal void Register()
-        {
-            if (IsRegistered)
-                throw new Exception("TODO: Error already registered");
-
-            bool ret = RegisterHotKey(hWnd, id, (int)Modifiers, (int)Keys);
-
-            if (!ret)
-                throw new Exception("TODO: Error registering hotkey");
-
-            IsRegistered = true;
+            Key = key;
+            Modifiers = modifiers;
         }
 
         public void Unregister()
         {
-            if (!IsRegistered)
-                throw new Exception("TODO: Error not registered");
-
-            bool ret = UnregisterHotKey(hWnd, id);
-
-            if (!ret)
-                throw new Exception(string.Format("TODO: Error unregistering hotkey\r\nError:{0}", Marshal.GetLastWin32Error()));
-
-            IsRegistered = false;
             HotKeyFactory.Factory.RemoveHotKey(this);
         }
 
@@ -98,7 +62,7 @@ namespace Hollow.Trainer.Framework.HotKeys
 
             if (handler != null)
             {
-                handler(this, new HotKeyEventArgs(Modifiers, Keys));
+                handler(this, new HotKeyEventArgs(Key, Modifiers));
             }
         }
 

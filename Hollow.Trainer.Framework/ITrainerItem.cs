@@ -42,7 +42,7 @@ namespace Hollow.Trainer.Framework
         void OnHotKeyPressed(object sender, HotKeyEventArgs e);
 
         KeyModifier HotKeyModifers { get; }
-        Keys HotKeys { get; }
+        Keys HotKey { get; }
 
         bool IsActive { get; }
     }

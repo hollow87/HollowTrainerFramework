@@ -35,13 +35,14 @@ namespace Hollow.Trainer.Framework.HotKeys
 {
     public class HotKeyEventArgs : EventArgs
     {
-        public Keys Keys { private set; get; }
+        public Keys Key { private set; get; }
 
         public KeyModifier Modifiers { private set; get; }
 
-        public HotKeyEventArgs(KeyModifier modifiers, Keys keys)
+        public HotKeyEventArgs(Keys key, KeyModifier modifiers)
         {
-            this.Keys = keys;
+            Key = key;
+            Modifiers = modifiers;
         }
     }
 }

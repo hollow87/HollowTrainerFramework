@@ -27,14 +27,14 @@ namespace Sample_x86.TrainerItems
             }
         }
 
-        public Keys HotKeys
+        public Keys HotKey
         {
             get
             {
                 if (hotkey == null)
                     return Keys.NumPad3;
                 else
-                    return hotkey.Keys;
+                    return hotkey.Key;
             }
         }
 
