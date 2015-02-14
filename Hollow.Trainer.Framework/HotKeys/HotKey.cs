@@ -43,7 +43,9 @@ namespace Hollow.Trainer.Framework.HotKeys
         public KeyModifier Modifiers { private set; get; }
         public Keys Key { private set; get; }
         
-        internal bool IsDown { get; set; }
+        internal bool IsKeyDown { get; set; }
+        internal KeyModifier ModifersDown { get; set; }
+
 
         internal HotKey(Keys key, KeyModifier modifiers)
         {

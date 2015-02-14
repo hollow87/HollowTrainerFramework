@@ -92,15 +92,62 @@ namespace Hollow.Trainer.Framework.HotKeys
                     {
                         if ((GetAsyncKeyState(item.Key) & 0x8000) == 0x8000)
                         {
-                            item.IsDown = true;
-                            continue;
+                            item.IsKeyDown = true;
                         }
 
-                        if ((GetAsyncKeyState(item.Key) & 0x8000) != 0x8000 & item.IsDown)
+                        if(item.Modifiers != KeyModifier.None)
                         {
-                            item.IsDown = false;
-                            item.OnHotKeyPressedHandler();
+                            if((item.Modifiers & KeyModifier.Alt) == KeyModifier.Alt)
+                            {
+                                if ((GetAsyncKeyState(Keys.Menu) & 0x8000) == 0x8000)
+                                    item.ModifersDown |= KeyModifier.Alt;
+                                else
+                                    item.ModifersDown -= (item.ModifersDown & KeyModifier.Alt);
+                            }
+
+                            if ((item.Modifiers & KeyModifier.Ctrl) == KeyModifier.Ctrl)
+                            {
+                                if ((GetAsyncKeyState(Keys.ControlKey) & 0x8000) == 0x8000)
+                                    item.ModifersDown |= KeyModifier.Ctrl;
+                                else
+                                    item.ModifersDown -= (item.ModifersDown & KeyModifier.Ctrl);
+                            }
+
+                            if ((item.Modifiers & KeyModifier.Shift) == KeyModifier.Shift)
+                            {
+                                if ((GetAsyncKeyState(Keys.ShiftKey) & 0x8000) == 0x8000)
+                                    item.ModifersDown |= KeyModifier.Shift;
+                                else
+                                    item.ModifersDown -= (item.ModifersDown & KeyModifier.Shift);
+                            }
+
+                            if ((item.Modifiers & KeyModifier.Win) == KeyModifier.Win)
+                            {
+                                if ((GetAsyncKeyState(Keys.LWin) & 0x8000) == 0x8000)
+                                    item.ModifersDown |= KeyModifier.Win;
+                                else
+                                    item.ModifersDown -= (item.ModifersDown & KeyModifier.Win);
+
+                                if ((item.ModifersDown & KeyModifier.Win) != KeyModifier.Win)
+                                {
+                                    if ((GetAsyncKeyState(Keys.RWin) & 0x8000) == 0x8000)
+                                        item.ModifersDown |= KeyModifier.Win;
+                                    else
+                                        item.ModifersDown -= (item.ModifersDown & KeyModifier.Win);
+                                }
+
+                            }
                         }
+
+                        if ((GetAsyncKeyState(item.Key) & 0x8000) != 0x8000 & item.IsKeyDown)
+                        {
+                            if (item.ModifersDown == item.Modifiers)
+                            {
+                                item.IsKeyDown = false;
+                                item.OnHotKeyPressedHandler();
+                            }
+                        }
+
                     }
                 }
 
