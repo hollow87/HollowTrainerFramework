@@ -30,6 +30,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Hollow.Trainer.Framework
 {
@@ -266,6 +267,37 @@ namespace Hollow.Trainer.Framework
         {
             WriteMemory(orginalAddress, orginalBytes);
             return FreeMemory(codeCave);
+        }
+
+        public uint InjectThread(IntPtr fnFunction, string argument)
+        {
+            char[] nullChar = { '\0' };
+            int argumentSize = Encoding.Unicode.GetByteCount(argument) + Encoding.Unicode.GetByteCount(nullChar);
+            byte[] argumentBytes = Encoding.Unicode.GetBytes(argument);
+            byte[] nullBytes = Encoding.Unicode.GetBytes(nullChar);
+
+            IntPtr baseAddress = AllocateMemory((uint)argumentSize);
+            WriteMemory(baseAddress, argumentBytes);
+            WriteMemory((baseAddress + argumentBytes.Length), nullBytes);
+
+            IntPtr threadHandle = Win32Api.Kernel32.CreateRemoteThread(Process.TargetProcessHandle,
+                IntPtr.Zero,
+                0,
+                fnFunction,
+                baseAddress,
+                0,
+                IntPtr.Zero);
+
+            Win32Api.Kernel32.WaitForSingleObject(threadHandle, uint.MaxValue);
+
+            FreeMemory(baseAddress);
+
+            uint exitCode = 0;
+            Win32Api.Kernel32.GetExitCodeThread(threadHandle, out exitCode);
+
+            Win32Api.Kernel32.CloseHandle(threadHandle);
+
+            return exitCode;
         }
     }
 }

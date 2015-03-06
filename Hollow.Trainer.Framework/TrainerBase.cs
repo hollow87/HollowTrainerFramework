@@ -33,6 +33,8 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.IO;
+using System.Reflection;
 
 
 namespace Hollow.Trainer.Framework
@@ -51,6 +53,82 @@ namespace Hollow.Trainer.Framework
         {
             Process = new ProcessManager(processName);
             Memory = new MemoryOperations(Process);
+        }
+
+        protected bool InjectManagedDll(string fullPath, string fullClassName, string methodName, string argument)
+        {
+            if (!Process.AdjustPrivilege(Win32Api.Advapi32.SE_DEBUG_NAME, true))
+                return false; // Unable to adjust process token
+
+            IntPtr fnLoadLibrary = Win32Api.Kernel32.GetProcAddress(
+                Win32Api.Kernel32.GetModuleHandle("kernel32"),
+                "LoadLibraryW");
+
+            Memory.InjectThread(fnLoadLibrary, GetManagedBootstrapPath());
+
+            ProcessModuleCollection modules = Process.TargetProcess.Modules;
+            ProcessModule bootStrapModule = null;
+
+            foreach (ProcessModule module in modules)
+            {
+                if (Path.GetFileName(module.FileName).ToLower() == "managedbootstrap.dll")
+                {
+                    bootStrapModule = module;
+                }
+            }
+
+            IntPtr procOffset = GetFunctionOffset("ManagedBootstrap.dll", "ImplantDotNetAssembly");
+
+            IntPtr procAddress;
+            if(Process.Is64Bit)
+                procAddress = new IntPtr(bootStrapModule.BaseAddress.ToInt64() + procOffset.ToInt64());
+            else
+                procAddress = new IntPtr(bootStrapModule.BaseAddress.ToInt32() + procOffset.ToInt32());
+
+            string combinedArguments = fullPath + ";" + fullClassName + ";" + methodName + ";" + argument;
+
+            Memory.InjectThread(procAddress, combinedArguments);
+
+            IntPtr fnFreeLibrary = Win32Api.Kernel32.GetProcAddress(
+                Win32Api.Kernel32.GetModuleHandle("kernel32"),
+                "FreeLibrary");
+
+            Win32Api.Kernel32.CreateRemoteThread(Process.TargetProcessHandle,
+                IntPtr.Zero,
+                0,
+                fnFreeLibrary,
+                bootStrapModule.BaseAddress,
+                0,
+                IntPtr.Zero);
+
+            return true;
+        }
+
+        internal string GetManagedBootstrapPath()
+        {
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            path = Path.Combine(path, "ManagedBootstrap.dll");
+
+            return path;
+
+        }
+
+        internal IntPtr GetFunctionOffset(string library, string procName)
+        {
+            IntPtr module = Win32Api.Kernel32.LoadLibrary(library);
+
+            IntPtr procAddress = Win32Api.Kernel32.GetProcAddress(module, procName);
+
+            IntPtr ret;
+
+            if(Process.Is64Bit)
+                ret = new IntPtr(procAddress.ToInt64() - module.ToInt64());
+            else
+                ret = new IntPtr(procAddress.ToInt32() - module.ToInt32());
+
+            Win32Api.Kernel32.FreeLibrary(module);
+
+            return ret;
         }
 
         protected void ReleaseProcess()

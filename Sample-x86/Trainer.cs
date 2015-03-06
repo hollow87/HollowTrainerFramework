@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Hollow.Trainer.Framework;
 using Hollow.Trainer.Framework.HotKeys;
+using System.IO;
+using System.Reflection;
+
 namespace Sample_x86
 {
     class Trainer : TrainerBase
@@ -14,6 +17,16 @@ namespace Sample_x86
         public Trainer(string processName)
         {
             this.OpenProcess(processName);
+            
+            // Example on how to do Managed Assembly Injection
+            // Have also Included the InjectTest.exe source as an example
+            
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            path = Path.Combine(path, "InjectTest.exe");
+
+            // Path, Full Class, Method, Arguments
+            this.InjectManagedDll(path, "InjectTest.Program", "EntryPoint", "testing");
+            
         }
 
         public override void AddTrainerItem(ITrainerItem item)

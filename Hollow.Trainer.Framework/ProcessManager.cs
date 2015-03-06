@@ -74,6 +74,8 @@ namespace Hollow.Trainer.Framework
 
 
             IntPtr handle = Win32Api.Kernel32.OpenProcess(
+                Win32Api.Kernel32.ProcessAccessFlags.CreateThread |
+                Win32Api.Kernel32.ProcessAccessFlags.QueryInformation |
                 Win32Api.Kernel32.ProcessAccessFlags.VirtualMemoryOperation |
                 Win32Api.Kernel32.ProcessAccessFlags.VirtualMemoryRead |
                 Win32Api.Kernel32.ProcessAccessFlags.VirtualMemoryWrite,
@@ -83,6 +85,42 @@ namespace Hollow.Trainer.Framework
                 throw new Exception("TODO: Error opening process");
 
             TargetProcessHandle = handle;
+        }
+
+        public bool AdjustPrivilege(string privilegeName, bool enable)
+        {
+            if (TargetProcessHandle == IntPtr.Zero) // Maybe throw an exception instead?
+                return false;
+
+            IntPtr token;
+            if (!Win32Api.Advapi32.OpenProcessToken(TargetProcessHandle,
+                Win32Api.Advapi32.TOKEN_ADJUST_PRIVILEGES | Win32Api.Advapi32.TOKEN_QUERY,
+                out token))
+                return false; // Unable to open Process token
+
+            Win32Api.Advapi32.TOKEN_PRIVILEGES privileges;
+            privileges.PrivilegeCount = 1;
+            privileges.Privileges = new Win32Api.Advapi32.LUID_AND_ATTRIBUTES[1];
+            privileges.Privileges[0].Attributes = (enable) ? Win32Api.Advapi32.SE_PRIVILEGE_ENABLED : 0;
+            if (!Win32Api.Advapi32.LookupPrivilegeValue(null, privilegeName, out privileges.Privileges[0].Luid))
+            {
+                // Close handle to the token
+                Win32Api.Kernel32.CloseHandle(token);
+                return false; // unable to lookup privilege
+            }
+                
+
+            bool result = Win32Api.Advapi32.AdjustTokenPrivileges(token, 
+                false, 
+                ref privileges, 
+                0, 
+                IntPtr.Zero, 
+                IntPtr.Zero);
+
+            // close handle to token
+            Win32Api.Kernel32.CloseHandle(token);
+
+            return result;
         }
 
         #region IDisposable Support
