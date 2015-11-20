@@ -18,6 +18,7 @@ namespace Sample_x86
         {
             this.OpenProcess(processName);
             
+            this.Process.TargetProcess.Exited += TargetProcessOnExited;
             // Example on how to do Managed Assembly Injection
             // Have also Included the InjectTest.exe source as an example
             
@@ -25,8 +26,23 @@ namespace Sample_x86
             path = Path.Combine(path, "InjectTest.exe");
 
             // Path, Full Class, Method, Arguments
-            this.InjectManagedDll(path, "InjectTest.Program", "EntryPoint", "testing");
+            //this.InjectManagedDll(path, "InjectTest.Program", "EntryPoint", "testing");
             
+        }
+
+        private void TargetProcessOnExited(object sender, EventArgs eventArgs)
+        {
+            foreach(var item in trainerItems)
+            {
+                try
+                {
+                    item.Deactivate();
+                }
+                catch
+                {
+                    // Empty catch block as writting some memory will undoubtly fail when the process is exited without extra logic
+                }
+            }
         }
 
         public override void AddTrainerItem(ITrainerItem item)

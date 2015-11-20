@@ -43,16 +43,24 @@ namespace Hollow.Trainer.Framework
             Process = process;
         }
 
-        public byte[] ReadMemory(IntPtr address, int length)
+        public byte[] ReadMemory(IntPtr address, ulong length)
         {
             byte[] buffer = new byte[length];
+
+            if (length > 0xFFFFFFFF && !Process.Is64Bit)
+                throw new Exception("TODO: 32bit process using 64bit length");
+
+            UIntPtr bytesRead;
 
             bool ret = Win32Api.Kernel32.ReadProcessMemory(
                 Process.TargetProcessHandle, 
                 address, 
                 buffer, 
-                length, 
-                IntPtr.Zero);
+                new UIntPtr(length), 
+                out bytesRead);
+
+            if (bytesRead.ToUInt64() != length)
+                throw new Exception("TODO: Read size not same as input");
 
             if (!ret)
                 throw new Exception("TODO: Error reading process memory");
@@ -60,7 +68,7 @@ namespace Hollow.Trainer.Framework
             return buffer;
         }
 
-        public byte[] ReadMemory(IntPtr address, int length, params int[] offsets)
+        public byte[] ReadMemory(IntPtr address, ulong length, params int[] offsets)
         {
             int pointerCount = offsets.Length - 1;
 
@@ -118,7 +126,7 @@ namespace Hollow.Trainer.Framework
         {
             int length = Process.Is64Bit ? 8 : 4;
 
-            byte[] pointer = ReadMemory(address, length);
+            byte[] pointer = ReadMemory(address, (ulong)length);
 
             if (Process.Is64Bit)
                 return new IntPtr(BitConverter.ToInt64(pointer, 0));
@@ -129,12 +137,20 @@ namespace Hollow.Trainer.Framework
 
         public void WriteMemory(IntPtr address, byte[] data)
         {
+            if (data.LongLength > 0xFFFFFFFF && !Process.Is64Bit)
+                throw new Exception("TODO: 32bit process using 64bit length");
+
+            UIntPtr bytesWritten;
+
             bool ret = Win32Api.Kernel32.WriteProcessMemory(
                 Process.TargetProcessHandle, 
                 address,
                 data,
-                data.Length,
-                IntPtr.Zero);
+                new UIntPtr((uint)data.LongLength),
+                out bytesWritten);
+
+            if (bytesWritten.ToUInt64() != (ulong)data.LongLength)
+                throw new Exception("TODO: Write size not same as input size");
 
             if (!ret)
                 throw new Exception("TODO: Error writing process memory");

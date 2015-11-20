@@ -28,9 +28,6 @@ namespace Sample_x86
             var link = new LinkLabel.Link();
             link.LinkData = "http://www.cheatengine.org/";
             cheatEngineSupport.Links.Add(link);
-
-            string test = "TEST";
-            int argumentSize = Encoding.Unicode.GetByteCount(test) + Encoding.Unicode.GetByteCount(new char[] { '\0' });
         }
 
         private void SampleTrainer32bit_FormClosing(object sender, FormClosingEventArgs e)
@@ -44,8 +41,8 @@ namespace Sample_x86
             if (!step1.Checked || trainer != null)
                 return;
 
-            // trainer = new Trainer("Tutorial-i386");  // Opens the process
-            trainer = new Trainer("Tutorial-x86_64");
+            trainer = new Trainer("Tutorial-i386");  // Opens the process
+            //trainer = new Trainer("Tutorial-x86_64");
 
             // Assoicate the cheats with the trainer
             trainer.AddTrainerItem(new TrainerItems.Step2());

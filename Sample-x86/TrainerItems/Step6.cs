@@ -25,6 +25,9 @@ namespace Sample_x86.TrainerItems
 
         private void Timer_Tick(object sender, EventArgs e)
         {
+            if (trainer.Process.TargetProcess.HasExited)
+                return;
+
             // There are two ways we can do this one.
             // I will show you the easist way first
 

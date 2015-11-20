@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="richTextBox1.Text" xml:space="preserve">
-    <value>This is a sample trainer for Cheat Engine Tutorial v3.2 32bit.
+    <value>This is a sample trainer for Cheat Engine 6.4 Tutorial v3.2 32bit.
 Each button corresponds to each step in the tutorial.
 
 Please ensure that the proper tutorial is running (Tutorial-i386.exe) then press the Step 1 button.</value>

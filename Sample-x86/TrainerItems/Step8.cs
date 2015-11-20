@@ -27,7 +27,8 @@ namespace Sample_x86.TrainerItems
         {
 
             // This is writing to a pointer to a pointer to a pointer to a pointer
-            trainer.Memory.WriteMemory(address, 5000, 0x0C, 0x14, 0x0, 0x18);
+            if(!trainer.Process.TargetProcess.HasExited)
+                trainer.Memory.WriteMemory(address, 5000, 0x0C, 0x14, 0x0, 0x18);
         }
 
         public KeyModifier HotKeyModifers
