@@ -14,7 +14,7 @@ namespace Sample_x86.TrainerItems
         HotKey hotkey;
         TrainerBase trainer;
         Timer timer;
-        IntPtr address = new IntPtr(0x00645390);
+        IntPtr address = new IntPtr(0x00634660);
 
         public Step8()
         {

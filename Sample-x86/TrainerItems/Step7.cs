@@ -13,8 +13,8 @@ namespace Sample_x86.TrainerItems
     {
         HotKey hotkey;
         TrainerBase trainer;
-        IntPtr address = new IntPtr(0x00426C40);
-        byte[] orginalBytes = new byte[] { 0xFF, 0x8B, 0x78, 0x04, 0x00, 0x00 };
+        IntPtr address = new IntPtr(0x0042521D);
+        byte[] orginalBytes = new byte[] { 0x83, 0xAB, 0x78, 0x04, 0x00, 0x00, 0x01 };
         byte[] newBytes = new byte[] { 0x83, 0x83, 0x78, 0x04, 0x00, 0x00, 0x02 };
         IntPtr codeCave;
         public KeyModifier HotKeyModifers

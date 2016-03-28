@@ -65,7 +65,7 @@ namespace Sample_x86.TrainerItems
             // Uncomment this to support handling hotkeys
             // this.hotkey.OnHotKeyPressed += OnHotKeyPressed;
 
-            address = new IntPtr(0x00645310);
+            address = new IntPtr(0x006345E0);
             pointerOffsets = new int[] { 0x484 };
         }
 

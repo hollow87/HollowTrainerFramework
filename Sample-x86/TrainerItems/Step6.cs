@@ -14,7 +14,7 @@ namespace Sample_x86.TrainerItems
         HotKey hotkey;
         TrainerBase trainer;
         Timer timer;
-        IntPtr address = new IntPtr(0x00645360);
+        IntPtr address = new IntPtr(0x00634630);
 
         public Step6()
         {
@@ -97,7 +97,7 @@ namespace Sample_x86.TrainerItems
             // this.hotkey.OnHotKeyPressed += OnHotKeyPressed;
 
             // You dont have to assign the address here if you dont want to I like to though
-            // address = new IntPtr(0x00645360);
+            // address = new IntPtr(0x00634630);
         }
 
         public void OnHotKeyPressed(object sender, HotKeyEventArgs e)

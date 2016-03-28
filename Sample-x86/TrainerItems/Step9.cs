@@ -13,15 +13,20 @@ namespace Sample_x86.TrainerItems
     {
         HotKey hotkey;
         TrainerBase trainer;
-        IntPtr address = new IntPtr(0x00427DA6);
-        byte[] orginalBytes = new byte[] { 0x89, 0x43, 0x04,
-                                           0xD9, 0xEE
+        IntPtr address;
+        byte[] orginalBytes = new byte[] { 0x89, 0x43, 0x04,                // mov [ebx+04], eax
+                                           0xD9, 0xEE                       // fldz
                                          };
-        byte[] newBytes = new byte[] { 0x83, 0x7B, 0x10, 0x02,
-                                       0x0F, 0x85, 0x02, 0x00, 0x00, 0x00,
-                                       0x31, 0xC0,
-                                       0x89, 0x43, 0x04,
-                                       0xD9, 0xEE
+
+        byte[] newBytes = new byte[] { 0x83, 0x7B, 0x10, 0x02,              // cmp [ebx+10], 02
+                                       0x0F, 0x84, 0x08, 0x00, 0x00, 0x00,  // je team2
+                                       0x8B, 0x43, 0x04,                    // mov eax, [ebx+04]
+                                       0xE9, 0x02, 0x00, 0x00, 0x00,        // jmp orgCode
+                                       // team2:
+                                       0x31, 0xC0,                          // xor eax, eax
+                                       // orgCode:
+                                       0x89, 0x43, 0x04,                    // mov [ebx+04], eax
+                                       0xD9, 0xEE                           // fldz
                                      };
         IntPtr codeCave;
 
@@ -75,6 +80,8 @@ namespace Sample_x86.TrainerItems
             this.hotkey = hotkey;
             // Uncomment this to support handling hotkeys
             // this.hotkey.OnHotKeyPressed += OnHotKeyPressed;
+
+            address = IntPtr.Add(trainer.Process.TargetProcess.MainModule.BaseAddress, 0x261D7);
         }
 
         public void OnHotKeyPressed(object sender, HotKeyEventArgs e)
